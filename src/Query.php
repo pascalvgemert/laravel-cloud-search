@@ -237,7 +237,6 @@ class Query
      *
      * @param string $phrase
      * @param int|float $fuzziness Allowed typo percentage per word
-     *
      * @param bool $lookForAnyWord
      *
      * @return $this

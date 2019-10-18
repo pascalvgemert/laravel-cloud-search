@@ -60,4 +60,20 @@ class DocumentCollection extends Collection
 
         return $this;
     }
+
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function getFacets(): Collection
+    {
+        return $this->facets;
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function getStatistics(): Collection
+    {
+        return $this->statistics;
+    }
 }

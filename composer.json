@@ -1,0 +1,40 @@
+{
+    name: "pascalvgemert/laravel-cloud-search",
+    version: "0.1.0",
+    description: "A package to use CloudSearch in an Eloquent way within Laravel",
+    keywords: [
+        "pascalvgemert",
+        "cloud-search",
+        "cloudsearch",
+        "cloud search",
+        "aws",
+        "aws cloudsearch",
+        "elastic search",
+        "eloquent"
+    ],
+    homepage: "https://github.com/pascalvgemert/laravel-cloud-search",
+    license: "GPL-3.0-or-later",
+    authors: [
+        {
+            name: "Pascal van Gemert",
+            email: "pascal@pascalvangemert.nl",
+            homepage: "https://www.pascalvangemert.nl",
+            role: "Developer"
+        }
+    ],
+    require: {
+        php: ">=7.0",
+        illuminate/contracts: "5.5.x|5.6.x|5.7.x|5.8.x|6.0.x",
+        illuminate/support: "5.5.x|5.6.x|5.7.x|5.8.x|6.0.x",
+        "aws/aws-sdk-php": "~3.0"
+    },
+    require-dev: { },
+    autoload: {
+        psr-4: {
+            LaravelCloudSearch\: "src"
+        }
+    },
+    autoload-dev: {
+        psr-4: { }
+    }
+}
