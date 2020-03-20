@@ -62,6 +62,14 @@ class DocumentCollection extends Collection
     }
 
     /**
+     * @return int
+     */
+    public function getRowsFound(): int
+    {
+        return $this->rowsFound;
+    }
+
+    /**
      * @return \Illuminate\Support\Collection
      */
     public function getFacets(): Collection
