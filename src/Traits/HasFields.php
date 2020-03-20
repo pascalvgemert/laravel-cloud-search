@@ -213,8 +213,15 @@ trait HasFields
             case 'object':
                 return $this->fromJson($value, true);
             case 'array':
+            case 'string_array':
+            case 'literal_array':
             case 'json':
                 return $this->fromJson($value);
+            case 'int_array':
+            case 'integer_array':
+                return array_map($this->fromJson($value), 'intval');
+            case 'float_array':
+                return array_map($this->fromJson($value), 'floatval');
             case 'collection':
                 return new Collection($this->fromJson($value));
             case 'date':
@@ -249,7 +256,7 @@ trait HasFields
      */
     public function fromJson($value, $asObject = false)
     {
-        return json_decode($value, ! $asObject);
+        return json_decode($value, !$asObject);
     }
 
     /**

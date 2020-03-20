@@ -33,7 +33,7 @@ class Query
      * @var array
      */
     public $operators = [
-        '=', '<', '>', '<=', '>=', '<>', '!=',
+        'literal', 'LITERAL', '=', '<', '>', '<=', '>=', '<>', '!=',
     ];
 
     /** @var \Aws\CloudSearchDomain\CloudSearchDomainClient|null */
@@ -65,6 +65,9 @@ class Query
 
     /** @var array */
     protected $statistics = [];
+
+    /** @var array */
+    protected $expressions = [];
 
     /**
      * @param \Aws\CloudSearchDomain\CloudSearchDomainClient $client
@@ -127,6 +130,10 @@ class Query
         switch ($operator) {
             case '=':
                 $this->statements[] = "{$column}:{$value}";
+                break;
+            case 'literal':
+            case 'LITERAL':
+                $this->statements[] = "{$column}:'{$value}'";
                 break;
             case '!=':
             case '<>':
@@ -347,6 +354,29 @@ class Query
     }
 
     /**
+     * Set a expression
+     *
+     * @param string|array $name
+     * @param string $expression
+     *
+     * @return $this
+     */
+    public function expression($name, string $expression): self
+    {
+        if (is_array($name)) {
+            foreach ($name as $expressionName => $expressionValue) {
+                $this->expression($expressionName, $expressionValue);
+            }
+
+            return $this;
+        }
+
+        $this->expressions[$expressionName] = $expressionValue;
+
+        return $this;
+    }
+
+    /**
      * Return query as string
      *
      * @return string
@@ -388,6 +418,7 @@ class Query
             // Add facets or statistics
             'facet' => $this->facets ? json_encode($this->facets) : null,
             'stats' => $this->statistics ? json_encode($this->statistics) : null,
+            'expr' => $this->expressions ? json_encode($this->expressions) : null,
 
             // Add filter arguments
             'filterQuery' => $this->hasStatements() ? $this->getQuery() : null,
@@ -514,6 +545,18 @@ class Query
     }
 
     /**
+     * Clears all order by statements for the current query
+     *
+     * @return $this
+     */
+    public function clearOrderBy(): self
+    {
+        $this->orderBy = [];
+
+        return $this;
+    }
+
+    /**
      * @return bool
      */
     public function hasStatements(): bool
@@ -578,6 +621,6 @@ class Query
     protected function invalidOperatorAndValue($operator, $value): bool
     {
         return is_null($value) && in_array($operator, $this->operators) &&
-            !in_array($operator, ['=', '<>', '!=']);
+            !in_array($operator, ['literal', 'LITERAL', '=', '<>', '!=']);
     }
 }
