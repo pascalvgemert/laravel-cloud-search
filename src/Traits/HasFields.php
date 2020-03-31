@@ -7,6 +7,7 @@ use Carbon\CarbonInterface;
 use DateTimeInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 trait HasFields
 {
@@ -50,9 +51,11 @@ trait HasFields
         foreach ($fields as $field => $value) {
             $defaultTypes = $defaultFields[$field] ?? [];
 
-            // Handle casted fields, may be improved in later version
+            // Handle casted fields
             if ($this->hasCast($field)) {
-                $this->fields[$field] = current($value);
+                $castType = $this->casts[$field] ?? '';
+
+                $this->fields[$field] = Str::contains($castType, 'array') ? $value : current($value);
 
                 continue;
             }
@@ -67,7 +70,7 @@ trait HasFields
                 continue;
             }
 
-            $fieldValue = $fieldType === 'array' ? $value : current($value);
+            $fieldValue = Str::contains($fieldType, 'array') ? $value : current($value);
 
             settype($fieldValue, $fieldType);
 
@@ -214,13 +217,18 @@ trait HasFields
             case 'array':
             case 'string_array':
             case 'literal_array':
+                return is_array($value) ? $value : (array)$value;
             case 'json':
                 return $this->fromJson($value);
             case 'int_array':
             case 'integer_array':
-                return array_map('intval', $this->fromJson($value));
+                $array = is_array($value) ? $value : (array)$value;
+
+                return array_map('intval', $array);
             case 'float_array':
-                return array_map('floatval', $this->fromJson($value));
+                $array = is_array($value) ? $value : (array)$value;
+
+                return array_map('floatval', $array);
             case 'collection':
                 return new Collection($this->fromJson($value));
             case 'date':
@@ -281,8 +289,8 @@ trait HasFields
     /**
      * Return a decimal as string.
      *
-     * @param  float  $value
-     * @param  int  $decimals
+     * @param  float $value
+     * @param  int $decimals
      * @return string
      */
     protected function asDecimal($value, $decimals): string
@@ -293,10 +301,11 @@ trait HasFields
     /**
      * Return a timestamp as DateTime object with time set to 00:00:00.
      *
-     * @param  mixed  $value
-     * @return \Carbon\Carbon
+     * @param mixed $value
+     *
+     * @return Carbon
      */
-    protected function asDate($value): \Carbon\Carbon
+    protected function asDate($value): Carbon
     {
         return $this->asDateTime($value)->startOfDay();
     }
@@ -304,10 +313,11 @@ trait HasFields
     /**
      * Return a timestamp as DateTime object.
      *
-     * @param  mixed  $value
-     * @return \Carbon\Carbon
+     * @param mixed $value
+     *
+     * @return Carbon
      */
-    protected function asDateTime($value): \Carbon\Carbon
+    protected function asDateTime($value): Carbon
     {
         // If this value is already a Carbon instance, we shall just return it as is.
         // This prevents us having to re-instantiate a Carbon instance when we know
