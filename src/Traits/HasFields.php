@@ -218,9 +218,9 @@ trait HasFields
                 return $this->fromJson($value);
             case 'int_array':
             case 'integer_array':
-                return array_map($this->fromJson($value), 'intval');
+                return array_map('intval', $this->fromJson($value));
             case 'float_array':
-                return array_map($this->fromJson($value), 'floatval');
+                return array_map('floatval', $this->fromJson($value));
             case 'collection':
                 return new Collection($this->fromJson($value));
             case 'date':
