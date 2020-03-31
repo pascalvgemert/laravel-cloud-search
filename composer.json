@@ -1,6 +1,6 @@
 {
     "name": "pascalvgemert/laravel-cloud-search",
-    "version": "0.1.4",
+    "version": "0.1.6",
     "description": "A package to use CloudSearch in an Eloquent way within Laravel",
     "keywords": [
         "pascalvgemert",
