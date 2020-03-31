@@ -110,7 +110,10 @@ class Query
      */
     public function where($column, ?string $operator = null, $value = null, $boolean = self::MATCH_AND): self
     {
-        $this->boolean = $boolean;
+        // Match boolean may turn into OR or stay AND, but never turn from OR to AND.
+        if ($this->boolean !== self::MATCH_OR) {
+            $this->boolean = $boolean;
+        }
 
         // Handle closure
         if ($column instanceof Closure) {

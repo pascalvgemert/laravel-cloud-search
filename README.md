@@ -66,7 +66,7 @@ $products = Product::select('id')
 
 ## Debugging
 
-To debug your build query, you can use the `toQuery()` method just like Eloquent.
+To debug your build query, you can use the `getQuery()` method just like Eloquent.
 
 ## Searching
 
