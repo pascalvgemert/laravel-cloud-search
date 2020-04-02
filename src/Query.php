@@ -121,7 +121,11 @@ class Query
 
             call_user_func($column, $subQuery);
 
-            $this->statements[] = $subQuery->getQuery();
+            $subQueryStatement = $subQuery->getQuery();
+
+            if ($subQueryStatement) {
+                $this->statements[] = $subQueryStatement;
+            }
 
             return $this;
         }
@@ -169,6 +173,11 @@ class Query
     {
         $values = $values instanceof Arrayable ? $values->toArray() : $values;
 
+        // No values means no query
+        if (!$values) {
+            return $this;
+        }
+
         $this->where(function (Builder $query) use ($column, $values) {
             foreach ((array)$values as $value) {
                 $query->orWhere($column, $value);
@@ -187,6 +196,11 @@ class Query
     public function whereNotIn(string $column, $values): self
     {
         $values = $values instanceof Arrayable ? $values->toArray() : $values;
+
+        // No values means no query
+        if (!$values) {
+            return $this;
+        }
 
         $this->where(function (Builder $query) use ($column, $values) {
             foreach ((array)$values as $value) {
@@ -387,6 +401,11 @@ class Query
     public function getQuery(): string
     {
         $statementsAsString = implode(' ', $this->statements);
+
+        // When statement is empty, always return empty string
+        if ($statementsAsString === '') {
+            return $statementsAsString;
+        }
 
         return count($this->statements) > 1 || $this->boolean === self::MATCH_AND
             ? "({$this->boolean} {$statementsAsString})"
