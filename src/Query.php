@@ -6,6 +6,7 @@ use Aws\CloudSearchDomain\CloudSearchDomainClient;
 use Closure;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Event;
 use InvalidArgumentException;
 use LaravelCloudSearch\Exceptions\QueryException;
 
@@ -92,6 +93,13 @@ class Query
         }
 
         $result = $this->client->search($this->getArguments());
+
+        // Dispatch an after query Event for debugging purposes
+        Event::dispatch('cloudsearch.query', [
+            'time' =>  Arr::get($result->get('status'), 'timems', 0),
+            'arguments' => $this->getArguments(),
+            'trace' => array_slice(debug_backtrace(), 1, 10),
+        ]);
 
         // Update cursor if needed
         $this->updateCursorFromResult($result);
