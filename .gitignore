@@ -1,0 +1,8 @@
+/vendor
+/.idea
+Homestead.json
+Homestead.yaml
+.env
+
+## ide helper
+_ide_helper.php
