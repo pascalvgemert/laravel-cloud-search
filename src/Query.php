@@ -18,6 +18,9 @@ class Query
     /** @var string */
     const MATCH_OR = 'or';
 
+    /** @var string */
+    const OPERATOR_LITERAL = 'literal';
+
     /**
      * Default fuzziness factor (1/4)
      *
@@ -34,7 +37,7 @@ class Query
      * @var array
      */
     public $operators = [
-        'literal', 'LITERAL', '=', '<', '>', '<=', '>=', '<>', '!=',
+        self::OPERATOR_LITERAL, '=', '<', '>', '<=', '>=', '<>', '!=',
     ];
 
     /** @var \Aws\CloudSearchDomain\CloudSearchDomainClient|null */
@@ -113,6 +116,7 @@ class Query
      * @param string|\Closure $column
      * @param string|null $operator
      * @param mixed|null $value
+     * @param string $boolean
      *
      * @return $this
      */
@@ -138,16 +142,15 @@ class Query
             return $this;
         }
 
-        list($value, $operator) = $this->prepareValueAndOperator(
+        [$value, $operator] = $this->prepareValueAndOperator(
             $value, $operator, func_num_args() === 2
         );
 
-        switch ($operator) {
+        switch (strtolower($operator)) {
             case '=':
                 $this->statements[] = "{$column}:{$value}";
                 break;
-            case 'literal':
-            case 'LITERAL':
+            case self::OPERATOR_LITERAL:
                 $this->statements[] = "{$column}:'{$value}'";
                 break;
             case '!=':
@@ -246,6 +249,19 @@ class Query
             $query->where($column, '<', $min)
                 ->where($column, '>', $max);
         });
+
+        return $this;
+    }
+
+    /**
+     * @param string $column
+     * @param mixed $value
+     *
+     * @return $this
+     */
+    public function whereLiteral(string $column, $value): self
+    {
+        $this->where($column, self::OPERATOR_LITERAL, $value);
 
         return $this;
     }
@@ -396,7 +412,7 @@ class Query
             return $this;
         }
 
-        $this->expressions[$expressionName] = $expressionValue;
+        $this->expressions[$name] = $expression;
 
         return $this;
     }
@@ -650,7 +666,8 @@ class Query
      */
     protected function invalidOperatorAndValue($operator, $value): bool
     {
-        return is_null($value) && in_array($operator, $this->operators) &&
-            !in_array($operator, ['literal', 'LITERAL', '=', '<>', '!=']);
+        return is_null($value)
+            && in_array(strtolower($operator), $this->operators)
+            && !in_array(strtolower($operator), [self::OPERATOR_LITERAL, '=', '<>', '!=']);
     }
 }
