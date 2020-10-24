@@ -1,7 +1,7 @@
 # laravel-cloud-search
 An Eloquent way to use CloudSearch within Laravel
 
-### Requires Laravel 5.5 or higher and the Laravel AWS package!
+### Requires PHP 7.1, Laravel 5.5 or higher and the Laravel AWS package!
 
 ## Installation
 
@@ -21,6 +21,8 @@ Instead of using Models, you create Documents. They almost work the same as a Mo
 Example:
 
 ```php
+use LaravelCloudSearch\Contracts\FieldType;
+use LaravelCloudSearch\Document;
 /**
  * Define your CloudSearch index fields here, this will help to define default values in your document result:
  *
@@ -32,16 +34,16 @@ Example:
  * @property-read int $stock
  * @property-read bool $pre_order
  */
-class Product extends \LaravelCloudSearch\Document
+class Product extends Document
 {
     /** @var string */
     protected $domain = 'http://your-domain-url-for-cloudsearch.eu-west-1.cloudsearch.amazonaws.com';
 
     /** @var array */
     protected $casts = [
-        'images' => 'array',
-        'pre_order' => 'bool',
-        'searchable' => 'bool',
+        'images' => FieldType::ARRAY,
+        'pre_order' => FieldType::BOOL,
+        'searchable' => FieldType::BOOL,
     ];
 }
 ```
@@ -52,7 +54,8 @@ Example:
 
 ```php
 /** @var \LaravelCloudSearch\DocumentCollection|\LaravelCloudSearch\Document[] **/
-$products = Product::select('id')
+$products = Product::query()
+    ->select('id')
     ->where('country_code', 'NL')
     ->where(function ($query) {
         $query
@@ -64,9 +67,27 @@ $products = Product::select('id')
     ->get();
 ```
 
+### Extra CloudSearch Methods
+
+| Method | Example |
+| :--- | :--- |
+| `phrase` | `Product::query()->phrase('Nemo')->get();` *(see section: Searching below for more details)* |
+| `whereLiteral` | `Product::query()->whereLiteral('type', 'game')->get();` |
+
 ## Debugging
 
 To debug your build query, you can use the `getQuery()` method just like Eloquent.
+
+Another great feature is that you can hook into the `cloudsearch.query` event. 
+The event contains the `time` it took to execute the query at CloudSearch, which `arguments` where used and the `trace` from the place the query got executed.
+For example you can hook the CloudSearch queries into the [Laravel-Debugbar](https://github.com/barryvdh/laravel-debugbar)
+
+**In Laravel you can listen to the Event as follows:**
+```
+Event::listen('cloudsearch.query', function ($timeInMilliSeconds, $arguments, $trace) {
+    dump($timeInMilliSeconds, $arguments, $trace);
+});
+```
 
 ## Searching
 
