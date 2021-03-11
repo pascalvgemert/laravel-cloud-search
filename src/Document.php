@@ -44,7 +44,7 @@ abstract class Document implements Arrayable, ArrayAccess, FieldType
     /**
      * @return Builder
      */
-    public function newQuery()
+    public function newQuery(): Builder
     {
         return (new Builder(new Query()))->setDocument($this);
     }
@@ -52,9 +52,9 @@ abstract class Document implements Arrayable, ArrayAccess, FieldType
     /**
      * @return Builder
      */
-    public function query()
+    public static function query(): Builder
     {
-        return $this->newQuery();
+        return (new static)->newQuery();
     }
 
     /**
@@ -62,7 +62,7 @@ abstract class Document implements Arrayable, ArrayAccess, FieldType
      *
      * @return string
      */
-    public function getKeyName()
+    public function getKeyName(): string
     {
         return $this->primaryKey;
     }
