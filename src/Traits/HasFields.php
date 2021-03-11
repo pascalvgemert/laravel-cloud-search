@@ -8,6 +8,7 @@ use DateTimeInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use LaravelCloudSearch\Contracts\FieldType;
 
 trait HasFields
 {
@@ -198,45 +199,45 @@ trait HasFields
         }
 
         switch ($this->casts[$field] ?? null) {
-            case 'int':
-            case 'integer':
+            case FieldType::INT:
+            case FieldType::INTEGER:
                 return (int) $value;
-            case 'real':
-            case 'float':
-            case 'double':
+            case FieldType::REAL:
+            case FieldType::FLOAT:
+            case FieldType::DOUBLE:
                 return $this->fromFloat($value);
-            case 'decimal':
+            case FieldType::DECIMAL:
                 return $this->asDecimal($value, explode(':', $this->casts[$field], 2)[1]);
-            case 'string':
+            case FieldType::STRING:
                 return (string) $value;
-            case 'bool':
-            case 'boolean':
+            case FieldType::BOOL:
+            case FieldType::BOOLEAN:
                 return (bool) $value;
-            case 'object':
+            case FieldType::OBJECT:
                 return $this->fromJson($value, true);
-            case 'array':
-            case 'string_array':
-            case 'literal_array':
+            case FieldType::ARRAY:
+            case FieldType::STRING_ARRAY:
+            case FieldType::LITERAL_ARRAY:
                 return is_array($value) ? $value : (array)$value;
-            case 'json':
+            case FieldType::JSON:
                 return $this->fromJson($value);
-            case 'int_array':
-            case 'integer_array':
+            case FieldType::INT_ARRAY:
+            case FieldType::INTEGER_ARRAY:
                 $array = is_array($value) ? $value : (array)$value;
 
                 return array_map('intval', $array);
-            case 'float_array':
+            case FieldType::FLOAT_ARRAY:
                 $array = is_array($value) ? $value : (array)$value;
 
                 return array_map('floatval', $array);
-            case 'collection':
+            case FieldType::COLLECTION:
                 return new Collection($this->fromJson($value));
-            case 'date':
+            case FieldType::DATE:
                 return $this->asDate($value);
-            case 'datetime':
-            case 'custom_datetime':
+            case FieldType::DATETIME:
+            case FieldType::CUSTOM_DATETIME:
                 return $this->asDateTime($value);
-            case 'timestamp':
+            case FieldType::TIMESTAMP:
                 return $this->asTimestamp($value);
             default:
                 return $value;

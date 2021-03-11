@@ -5,6 +5,7 @@ namespace LaravelCloudSearch;
 use ArrayAccess;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Traits\ForwardsCalls;
+use LaravelCloudSearch\Contracts\FieldType;
 use LaravelCloudSearch\Exceptions\MissingDomainException;
 use LaravelCloudSearch\Traits\HasFields;
 
@@ -14,7 +15,7 @@ use LaravelCloudSearch\Traits\HasFields;
  * @mixin Query
  * @mixin Builder
  */
-abstract class Document implements Arrayable, ArrayAccess
+abstract class Document implements Arrayable, ArrayAccess, FieldType
 {
     use ForwardsCalls,
         HasFields;
